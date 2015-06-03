@@ -8,9 +8,13 @@ QT       += core
 QT       -= gui
 
 TARGET = LogonBackgroundChanger
-CONFIG   += console
+CONFIG   += console c++11
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    ConfigFileParser.cpp
+
+HEADERS += \
+    ConfigFileParser.hpp
