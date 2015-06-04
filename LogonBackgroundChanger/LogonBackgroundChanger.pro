@@ -4,17 +4,20 @@
 #
 #-------------------------------------------------
 
-QT       += core
-QT       -= gui
+QT       += core gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = LogonBackgroundChanger
-CONFIG   += console c++11
-CONFIG   -= app_bundle
+CONFIG   += c++11
 
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    ConfigFileParser.cpp
+    ConfigFileParser.cpp \
+    WinEvent.cpp \
+    TrayMenu.cpp
 
 HEADERS += \
-    ConfigFileParser.hpp
+    ConfigFileParser.hpp \
+    WinEvent.hpp \
+    TrayMenu.hpp

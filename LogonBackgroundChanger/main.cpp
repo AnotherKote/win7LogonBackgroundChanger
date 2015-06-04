@@ -1,14 +1,16 @@
-#include <QCoreApplication>
+#include <QApplication>
 #include <QTextStream>
 #include <QFile>
 #include <QStringList>
 
 #include "ConfigFileParser.hpp"
+#include "WinEvent.hpp"
+#include "TrayMenu.hpp"
 
 #include <QDebug>
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QApplication a(argc, argv);
 
     QString pathToConfigFile = "lbgc.config";
     const QString usageArg = "-u";
@@ -39,6 +41,9 @@ int main(int argc, char *argv[])
     ConfigFileParser parser(pathToConfigFile);
     QStringList list;
     parser.parseFiles(list);
+    WinEvent aa;
+    TrayMenu aaa;
+//    aa.show();
     /// QStringList List of path's to all image files in path's of config file.
     /// QStringList list = parser.parseFile();
     /// if(list.empty)
