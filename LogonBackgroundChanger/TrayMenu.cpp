@@ -1,13 +1,19 @@
 #include "TrayMenu.hpp"
+#include "SettingsWindow.hpp"
 
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QApplication>
-
+#include <QDebug>
 TrayMenu::TrayMenu(QWidget *parent)
-   : QLabel(parent)
+: QLabel(parent)
+, m_ptrayIcon(nullptr)
+, m_ptrayIconMenu(nullptr)
+, m_psettingsWindow(nullptr)
 {
    setWindowTitle("logon background changer");
+
+   m_psettingsWindow = new SettingsWindow();
 
    QAction *changeBackground = new QAction("&Change logon background", this);
 
@@ -26,7 +32,7 @@ TrayMenu::TrayMenu(QWidget *parent)
    QAction *onUnlocked = new QAction ("Every workstation unlock", this);
    onUnlocked->setCheckable(true);
    QAction *custom = new QAction ("Custom...", this);
-   onUnlocked->setCheckable(true);
+   custom->setCheckable(true);
    timeIntervalsActionGroup->addAction(oneMinute);
    timeIntervalsActionGroup->addAction(fiveMinutes);
    timeIntervalsActionGroup->addAction(thirtyMinutes);
@@ -38,9 +44,11 @@ TrayMenu::TrayMenu(QWidget *parent)
    changeIntervalSubMenu->addActions(timeIntervalsActionGroup->actions());
 
    QAction *settings = new QAction("&Settings...", this);
-   QAction *exit = new QAction("E&xit", this);
+   connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
 
+   QAction *exit = new QAction("E&xit", this);
    connect(exit, SIGNAL(triggered()), qApp, SLOT(quit()));
+
 
    m_ptrayIconMenu = new QMenu(this);
    m_ptrayIconMenu->addAction(changeBackground);
@@ -52,6 +60,16 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_ptrayIcon->setContextMenu(m_ptrayIconMenu);
    m_ptrayIcon->setToolTip("Logon background changer");
    m_ptrayIcon->show();
+}
+
+TrayMenu::~TrayMenu()
+{
+    delete m_psettingsWindow;
+}
+
+void TrayMenu::openSettings()
+{
+    m_psettingsWindow->show();
 }
 
 

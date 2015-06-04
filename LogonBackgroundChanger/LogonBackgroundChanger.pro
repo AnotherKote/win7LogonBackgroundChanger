@@ -15,9 +15,10 @@ TEMPLATE = app
 SOURCES += main.cpp \
     ConfigFileParser.cpp \
     WinEvent.cpp \
-    TrayMenu.cpp
+    TrayMenu.cpp \
+    SettingsWindow.cpp
 
-HEADERS += \
-    ConfigFileParser.hpp \
+HEADERS += ConfigFileParser.hpp \
     WinEvent.hpp \
-    TrayMenu.hpp
+    TrayMenu.hpp \
+    SettingsWindow.hpp
