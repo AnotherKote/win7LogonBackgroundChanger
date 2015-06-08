@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    QApplication::setOrganizationName("AnotherKote'sSoftware");
+    QApplication::setApplicationName("LogonBackgroundChanger");
+
     QString pathToConfigFile = "lbgc.config";
     const QString usageArg = "-u";
     if(argc > 1){
