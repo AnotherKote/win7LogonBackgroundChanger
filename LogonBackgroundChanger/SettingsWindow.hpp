@@ -22,11 +22,12 @@ private:
     QPushButton *m_pcancel;
     QListWidget *m_pdirectoryList;
     QSettings *m_psettings;
+
 public:
     explicit SettingsWindow(QWidget *parent = 0);
 
 signals:
-
+    void settingsChanged();
 public slots:
     void fileDialogOpen();
     void addDirToList();

@@ -1,0 +1,1 @@
+Wmic Process Where Name="LogonBackgroundChanger.exe" CALL Terminate

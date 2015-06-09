@@ -12,13 +12,16 @@ CONFIG   += c++11
 
 TEMPLATE = app
 
+#RC_FILE = my.rc
+
 SOURCES += main.cpp \
-    ConfigFileParser.cpp \
     WinEvent.cpp \
     TrayMenu.cpp \
-    SettingsWindow.cpp
+    SettingsWindow.cpp \
+    BackgroundChanger.cpp
 
-HEADERS += ConfigFileParser.hpp \
+HEADERS += \
     WinEvent.hpp \
     TrayMenu.hpp \
-    SettingsWindow.hpp
+    SettingsWindow.hpp \
+    BackgroundChanger.hpp

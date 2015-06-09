@@ -13,26 +13,32 @@ TrayMenu::TrayMenu(QWidget *parent)
 {
    setWindowTitle("logon background changer");
 
-   m_psettingsWindow = new SettingsWindow();
+   m_psettingsWindow = new SettingsWindow(this);
 
    QAction *changeBackground = new QAction("&Change logon background", this);
 
    QMenu *changeIntervalSubMenu = new QMenu ("&Interval", this);
    QActionGroup *timeIntervalsActionGroup = new QActionGroup(this);
    QAction *oneMinute = new QAction("1 min", this);
-   oneMinute->setCheckable(true);
    QAction *fiveMinutes = new QAction ("5 min", this);
-   fiveMinutes->setCheckable(true);
    QAction *thirtyMinutes = new QAction ("30 min", this);
-   thirtyMinutes->setCheckable(true);
    QAction *oneHour = new QAction ("1 hour", this);
-   oneHour->setCheckable(true);
    QAction *onLocked = new QAction ("Every workstation lock", this);
-   onLocked->setCheckable(true);
    QAction *onUnlocked = new QAction ("Every workstation unlock", this);
-   onUnlocked->setCheckable(true);
    QAction *custom = new QAction ("Custom...", this);
+
+   QAction *updateDirs = new QAction("Udpate directories", this);
+   QAction *settings = new QAction("&Settings...", this);
+   QAction *exit = new QAction("E&xit", this);
+
+   oneMinute->setCheckable(true);
+   fiveMinutes->setCheckable(true);
+   thirtyMinutes->setCheckable(true);
+   oneHour->setCheckable(true);
+   onLocked->setCheckable(true);
+   onUnlocked->setCheckable(true);
    custom->setCheckable(true);
+
    timeIntervalsActionGroup->addAction(oneMinute);
    timeIntervalsActionGroup->addAction(fiveMinutes);
    timeIntervalsActionGroup->addAction(thirtyMinutes);
@@ -43,16 +49,16 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    changeIntervalSubMenu->addActions(timeIntervalsActionGroup->actions());
 
-   QAction *settings = new QAction("&Settings...", this);
+   connect(changeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
+   connect(updateDirs, SIGNAL(triggered(bool)), SIGNAL(settingsChanged()));
    connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
-
-   QAction *exit = new QAction("E&xit", this);
    connect(exit, SIGNAL(triggered()), qApp, SLOT(quit()));
-
+   connect(m_psettingsWindow, SIGNAL(settingsChanged()), SIGNAL(settingsChanged()));
 
    m_ptrayIconMenu = new QMenu(this);
    m_ptrayIconMenu->addAction(changeBackground);
    m_ptrayIconMenu->addMenu(changeIntervalSubMenu);
+   m_ptrayIconMenu->addAction(updateDirs);
    m_ptrayIconMenu->addAction(settings);
    m_ptrayIconMenu->addAction(exit);
    m_ptrayIcon = new QSystemTrayIcon(this);
@@ -64,15 +70,12 @@ TrayMenu::TrayMenu(QWidget *parent)
 
 TrayMenu::~TrayMenu()
 {
-    delete m_psettingsWindow;
 }
 
 void TrayMenu::openSettings()
 {
     m_psettingsWindow->show();
 }
-
-
 
 void TrayMenu::closeEvent(QCloseEvent *)
 {

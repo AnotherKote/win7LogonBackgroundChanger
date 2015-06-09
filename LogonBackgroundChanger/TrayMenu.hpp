@@ -23,6 +23,9 @@ public slots:
    // QWidget interface
 protected:
    void closeEvent(QCloseEvent *);
+signals:
+   void settingsChanged();
+   void changeBackground();
 };
 
 #endif // TRAYMENU_H

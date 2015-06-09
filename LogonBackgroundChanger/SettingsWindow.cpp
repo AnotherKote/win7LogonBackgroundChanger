@@ -9,6 +9,7 @@
 
 #include "SettingsWindow.hpp"
 #include <QDebug>
+
 SettingsWindow::SettingsWindow(QWidget *parent)
 : QWidget(parent)
 , m_pcurrentDir(nullptr)
@@ -66,8 +67,8 @@ SettingsWindow::SettingsWindow(QWidget *parent)
     mainLayout->addWidget(m_pdirectoryList);
     mainLayout->addLayout(cancelSaveLayout);
 
-    QSize winSize(400, 200);
-    this->setFixedSize(winSize);
+    QSize winSize(800, 400);
+    resize(winSize);
 }
 
 void SettingsWindow::fileDialogOpen()
@@ -77,21 +78,16 @@ void SettingsWindow::fileDialogOpen()
 
 void SettingsWindow::addDirToList()
 {
-    QDir curDir(m_pcurrentDir->text());
+    QString currentDir = m_pcurrentDir->text();
+    QDir curDir(currentDir);
     if(curDir.exists()){
-        if(m_pdirectoryList->findItems(m_pcurrentDir->text(), Qt::MatchFixedString).isEmpty()){
-            m_pdirectoryList->addItem(m_pcurrentDir->text());
-//            QStringList filters; //working with dirs setFilter to filter dirs form files
-//            filters << "*.png" << "*.gif";
-//            QDir dir(m_pcurrentDir->text());
-//            dir.setNameFilters(filters);
-//            dir.setNameFilters(filters);
-//            qDebug() << dir.entryList();
+        if(m_pdirectoryList->findItems(currentDir, Qt::MatchFixedString).isEmpty()){
+            m_pdirectoryList->addItem(curDir.path());
         } else {
             QMessageBox::information(this, "Info", "Already in list.");
         }
     } else {
-        QMessageBox::warning(this, "Path error", "Path doesn't exists!");
+        QMessageBox::warning(this, "Path error", "Path doesn't exist!");
     }
 }
 
@@ -122,13 +118,15 @@ void SettingsWindow::saveSettings()
    m_psettings->remove("/Dirs/");
    for(auto dir: m_pdirectoryList->findItems(".*", Qt::MatchRegExp)){
       m_psettings->setValue("/Dirs/" + QString::number(index++), dir->text());
-      qDebug() << "/Dirs/" + QString::number(index) << ":" << dir->text();
    }
+   this->hide();
+   emit settingsChanged();
 }
 
 
 void SettingsWindow::showEvent(QShowEvent *)
 {
+   m_pdirectoryList->clear();
    for(int index = 0; !m_psettings->value("/Dirs/" + QString::number(index)).toString().isEmpty(); ++index){
       m_pdirectoryList->addItem(m_psettings->value("/Dirs/" + QString::number(index)).toString());
    }
