@@ -6,6 +6,7 @@
 #include <QSystemTrayIcon>
 #include <QApplication>
 #include <QIcon>
+#include <QSettings>
 #include <QDebug>
 
 TrayMenu::TrayMenu(QWidget *parent)
@@ -13,6 +14,7 @@ TrayMenu::TrayMenu(QWidget *parent)
 , m_ptrayIcon(nullptr)
 , m_ptrayIconMenu(nullptr)
 , m_psettingsWindow(nullptr)
+, m_psettings(nullptr)
 {
    setWindowTitle("logon background changer");
 
@@ -33,6 +35,8 @@ TrayMenu::TrayMenu(QWidget *parent)
    QAction *updateDirs = new QAction("Udpate directories", this);
    QAction *settings = new QAction("&Settings...", this);
    QAction *exit = new QAction("E&xit", this);
+
+   m_psettings = new QSettings(this);
 
    oneMinute->setCheckable(true);
    fiveMinutes->setCheckable(true);
@@ -60,6 +64,8 @@ TrayMenu::TrayMenu(QWidget *parent)
    connect(oneHour, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
    connect(onLocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_LOCK, 0); });
    connect(onUnlocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
+   connect(custom, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 24*60*60*1000); });
+   connect(this, SIGNAL(changeEvent(EventProvider::eventType,int)), SLOT(saveSettings(EventProvider::eventType,int)));
 
    connect(updateDirs, SIGNAL(triggered(bool)), SIGNAL(settingsChanged()));
    connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
@@ -78,6 +84,28 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_ptrayIcon->setToolTip("Logon background changer");
    m_ptrayIcon->setIcon(QIcon("://icon/icon.png"));
    m_ptrayIcon->show();
+
+   if(m_psettings->contains("/event/type")){
+       EventProvider::eventType event = static_cast<EventProvider::eventType>(m_psettings->value("/event/type").toInt());
+       int time = m_psettings->value("/event/time").toInt();
+       oneMinute->setChecked(event == EventProvider::E_TIME && time == 60*1000);
+       fiveMinutes->setChecked(event == EventProvider::E_TIME && time == 5*60*1000);
+       thirtyMinutes->setChecked(event == EventProvider::E_TIME && time == 30*60*1000);
+       oneHour->setChecked(event == EventProvider::E_TIME && time == 60*60*1000);
+       onLocked->setChecked(event == EventProvider::E_LOCK);
+       onUnlocked->setChecked(event == EventProvider::E_UNLOCK);
+       custom->setChecked(!oneMinute->isChecked()     &&
+                          !fiveMinutes->isChecked()   &&
+                          !thirtyMinutes->isChecked() &&
+                          !oneHour->isChecked()       &&
+                          !onLocked->isChecked()      &&
+                          !onUnlocked->isChecked()    );
+
+       emit changeEvent(event, time);
+   } else {
+       onLocked->setChecked(EventProvider::E_LOCK);
+       emit changeEvent(EventProvider::E_LOCK, 0);
+   }
 }
 
 TrayMenu::~TrayMenu()
@@ -91,7 +119,13 @@ void TrayMenu::openSettings()
 
 void TrayMenu::showMessage(QString message)
 {
-   m_ptrayIcon->showMessage("Logon background changer", message, QSystemTrayIcon::Information, 3000);
+    m_ptrayIcon->showMessage("Logon background changer", message, QSystemTrayIcon::Information, 3000);
+}
+
+void TrayMenu::saveSettings(EventProvider::eventType event, int time)
+{
+    m_psettings->setValue("/event/type", event);
+    m_psettings->setValue("/event/time", time);
 }
 
 void TrayMenu::closeEvent(QCloseEvent *)

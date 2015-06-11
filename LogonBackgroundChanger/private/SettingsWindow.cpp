@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QSettings>
+#include <QIcon>
 
 #include "SettingsWindow.hpp"
 #include <QDebug>
@@ -36,6 +37,8 @@ SettingsWindow::SettingsWindow(QWidget *parent)
     m_premDir->setText("&Remove");
     m_psave->setText("&Save");
     m_pcancel->setText("&Cancel");
+    m_pbrowseButton->setText("Add &directory...");
+    m_pbrowseButton->setIcon(QIcon("://icon/folder.png"));
 
     m_paddDir->setEnabled(false);
     m_premDir->setEnabled(false);
@@ -50,11 +53,12 @@ SettingsWindow::SettingsWindow(QWidget *parent)
 
     QHBoxLayout *browseLayout = new QHBoxLayout();
     browseLayout->addWidget(m_pcurrentDir);
-    browseLayout->addWidget(m_pbrowseButton);
+    browseLayout->addWidget(m_paddDir);
 
     QHBoxLayout *addRemoveLayout = new QHBoxLayout();
-    addRemoveLayout->addWidget(m_paddDir);
     addRemoveLayout->addWidget(m_premDir);
+    addRemoveLayout->addStretch(1);
+    addRemoveLayout->addWidget(m_pbrowseButton);
 
     QHBoxLayout *cancelSaveLayout = new QHBoxLayout();
     cancelSaveLayout->addWidget(m_pcancel);

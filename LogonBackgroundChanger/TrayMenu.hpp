@@ -9,6 +9,7 @@ class QSystemTrayIcon;
 class QMenu;
 class SettingsWindow;
 class QIcon;
+class QSettings;
 
 class TrayMenu : public QLabel
 {
@@ -17,15 +18,20 @@ private:
    QSystemTrayIcon *m_ptrayIcon;
    QMenu *m_ptrayIconMenu;
    SettingsWindow *m_psettingsWindow;
+   QSettings *m_psettings;
+
 public:
    TrayMenu(QWidget *parent = 0);
    ~TrayMenu();
+
 public slots:
    void openSettings();
    void showMessage(QString message);
-   // QWidget interface
+   void saveSettings(EventProvider::eventType event, int time);
+
 protected:
    void closeEvent(QCloseEvent *);
+
 signals:
    void settingsChanged();
    void changeBackground();

@@ -40,6 +40,7 @@ void EventProvider::setEvent(EventProvider::eventType type, int time /*= 0*/)
 {
 //   m_timerTime = time;
    qDebug() << "type " << type << " time " << time;
+
    switch (type) {
    case E_NONE:
       m_winStatusCode = UNREACHABLE_STATUS_CODE;
