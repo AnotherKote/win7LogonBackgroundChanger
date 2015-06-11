@@ -15,7 +15,7 @@ public:
    explicit BackgroundChanger(QObject *parent = 0);
 
 signals:
-
+   void message(QString message);
 public slots:
    void updateImagesNames();
    void changeBackground();
@@ -25,6 +25,7 @@ private:
    QSettings *m_psettings;
    QSize m_screenSize;
    QString getWindowsDir();
+   QString m_message;
 };
 
 #endif // BACKGROUNDCHANGER_H

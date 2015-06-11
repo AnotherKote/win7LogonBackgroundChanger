@@ -73,7 +73,7 @@ SettingsWindow::SettingsWindow(QWidget *parent)
 
 void SettingsWindow::fileDialogOpen()
 {
-    m_pcurrentDir->setText(QFileDialog::getExistingDirectory());
+    m_pdirectoryList->addItem(QFileDialog::getExistingDirectory());
 }
 
 void SettingsWindow::addDirToList()

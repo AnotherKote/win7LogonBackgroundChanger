@@ -15,13 +15,15 @@ TEMPLATE = app
 #RC_FILE = my.rc
 
 SOURCES += main.cpp \
-    WinEvent.cpp \
-    TrayMenu.cpp \
-    SettingsWindow.cpp \
-    BackgroundChanger.cpp
+    private\TrayMenu.cpp \
+    private\SettingsWindow.cpp \
+    private\BackgroundChanger.cpp \
+    private\EventProvider.cpp
 
 HEADERS += \
-    WinEvent.hpp \
     TrayMenu.hpp \
     SettingsWindow.hpp \
-    BackgroundChanger.hpp
+    BackgroundChanger.hpp \
+    EventProvider.hpp
+
+RESOURCES += qrc.qrc

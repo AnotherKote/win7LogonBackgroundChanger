@@ -2,9 +2,10 @@
 #include <QTextStream>
 #include <QFile>
 #include <QStringList>
+#include <QThread>
 
 //#include "ConfigFileParser.hpp"
-#include "WinEvent.hpp"
+#include "EventProvider.hpp"
 #include "TrayMenu.hpp"
 #include "BackgroundChanger.hpp"
 
@@ -17,13 +18,29 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName("LogonBackgroundChanger");
     QApplication::setQuitOnLastWindowClosed(false);
 
-    WinEvent winEventRegistration;
+//    qRegisterMetaType<EventProvider::eventType>("EventProvider::eventType");
+
+    EventProvider eventProvider;
     TrayMenu trayMenu;
+
+    QThread thread(&trayMenu);
     BackgroundChanger bgChanger; //QFileSystemWatcher
 
-    QObject::connect(&trayMenu, SIGNAL(settingsChanged()), &bgChanger, SLOT(updateImagesNames()));
-    QObject::connect(&trayMenu, SIGNAL(changeBackground()), &bgChanger, SLOT(changeBackground()));
-    bgChanger.updateImagesNames();
+    QObject::connect(&trayMenu, SIGNAL(settingsChanged()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
+    QObject::connect(&thread, SIGNAL(started()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
+
+    QObject::connect(&trayMenu, SIGNAL(changeBackground()), &bgChanger, SLOT(changeBackground()), Qt::QueuedConnection);
+    QObject::connect(&eventProvider, SIGNAL(timeToChange()), &bgChanger, SLOT(changeBackground()), Qt::QueuedConnection);
+
+    QObject::connect(&bgChanger, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)), Qt::QueuedConnection);
+    QObject::connect(&trayMenu, SIGNAL(changeEvent(EventProvider::eventType,int)), &eventProvider, SLOT(setEvent(EventProvider::eventType,int)));
+
+    QObject::connect(&a, SIGNAL(aboutToQuit()), &thread, SLOT(terminate()));
+
+    bgChanger.moveToThread(&thread);
+    thread.start();
+
+//    bgChanger.updateImagesNames();
 
     return a.exec();
 }

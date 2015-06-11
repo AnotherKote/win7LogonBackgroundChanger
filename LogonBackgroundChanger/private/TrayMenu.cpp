@@ -1,10 +1,13 @@
 #include "TrayMenu.hpp"
 #include "SettingsWindow.hpp"
+#include "EventProvider.hpp"
 
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QApplication>
+#include <QIcon>
 #include <QDebug>
+
 TrayMenu::TrayMenu(QWidget *parent)
 : QLabel(parent)
 , m_ptrayIcon(nullptr)
@@ -50,6 +53,14 @@ TrayMenu::TrayMenu(QWidget *parent)
    changeIntervalSubMenu->addActions(timeIntervalsActionGroup->actions());
 
    connect(changeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
+
+   connect(oneMinute, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
+   connect(fiveMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
+   connect(thirtyMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
+   connect(oneHour, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
+   connect(onLocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_LOCK, 0); });
+   connect(onUnlocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
+
    connect(updateDirs, SIGNAL(triggered(bool)), SIGNAL(settingsChanged()));
    connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
    connect(exit, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -65,6 +76,7 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    m_ptrayIcon->setContextMenu(m_ptrayIconMenu);
    m_ptrayIcon->setToolTip("Logon background changer");
+   m_ptrayIcon->setIcon(QIcon("://icon/icon.png"));
    m_ptrayIcon->show();
 }
 
@@ -74,7 +86,12 @@ TrayMenu::~TrayMenu()
 
 void TrayMenu::openSettings()
 {
-    m_psettingsWindow->show();
+   m_psettingsWindow->show();
+}
+
+void TrayMenu::showMessage(QString message)
+{
+   m_ptrayIcon->showMessage("Logon background changer", message, QSystemTrayIcon::Information, 3000);
 }
 
 void TrayMenu::closeEvent(QCloseEvent *)
