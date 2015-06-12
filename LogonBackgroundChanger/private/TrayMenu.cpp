@@ -24,6 +24,7 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    QMenu *changeIntervalSubMenu = new QMenu ("&Interval", this);
    QActionGroup *timeIntervalsActionGroup = new QActionGroup(this);
+   QAction *never = new QAction("Never", this);
    QAction *oneMinute = new QAction("1 min", this);
    QAction *fiveMinutes = new QAction ("5 min", this);
    QAction *thirtyMinutes = new QAction ("30 min", this);
@@ -38,6 +39,7 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    m_psettings = new QSettings(this);
 
+   never->setCheckable(true);
    oneMinute->setCheckable(true);
    fiveMinutes->setCheckable(true);
    thirtyMinutes->setCheckable(true);
@@ -46,6 +48,7 @@ TrayMenu::TrayMenu(QWidget *parent)
    onUnlocked->setCheckable(true);
    custom->setCheckable(true);
 
+   timeIntervalsActionGroup->addAction(never);
    timeIntervalsActionGroup->addAction(oneMinute);
    timeIntervalsActionGroup->addAction(fiveMinutes);
    timeIntervalsActionGroup->addAction(thirtyMinutes);
@@ -58,6 +61,7 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    connect(changeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
 
+   connect(never, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_NONE, 0); });
    connect(oneMinute, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
    connect(fiveMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
    connect(thirtyMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
