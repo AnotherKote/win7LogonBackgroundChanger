@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QIcon>
 #include <QSettings>
+#include <QMessageBox>
 #include <QDebug>
 
 TrayMenu::TrayMenu(QWidget *parent)
@@ -15,6 +16,8 @@ TrayMenu::TrayMenu(QWidget *parent)
 , m_ptrayIconMenu(nullptr)
 , m_psettingsWindow(nullptr)
 , m_psettings(nullptr)
+, m_pexitAction(nullptr)
+, m_ptweakRegisterAction(nullptr)
 {
    setWindowTitle("logon background changer");
 
@@ -35,7 +38,8 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    QAction *updateDirs = new QAction("Udpate directories", this);
    QAction *settings = new QAction("&Settings...", this);
-   QAction *exit = new QAction("E&xit", this);
+   m_ptweakRegisterAction = new QAction("&Tweak register", this);
+   m_pexitAction = new QAction("E&xit", this);
 
    m_psettings = new QSettings(this);
 
@@ -73,7 +77,8 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    connect(updateDirs, SIGNAL(triggered(bool)), SIGNAL(settingsChanged()));
    connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
-   connect(exit, SIGNAL(triggered()), qApp, SLOT(quit()));
+   connect(m_ptweakRegisterAction, SIGNAL(triggered(bool)), SIGNAL(tweakRegister()));
+   connect(m_pexitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
    connect(m_psettingsWindow, SIGNAL(settingsChanged()), SIGNAL(settingsChanged()));
 
    m_ptrayIconMenu = new QMenu(this);
@@ -81,7 +86,7 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_ptrayIconMenu->addMenu(changeIntervalSubMenu);
    m_ptrayIconMenu->addAction(updateDirs);
    m_ptrayIconMenu->addAction(settings);
-   m_ptrayIconMenu->addAction(exit);
+   m_ptrayIconMenu->addAction(m_pexitAction);
    m_ptrayIcon = new QSystemTrayIcon(this);
 
    m_ptrayIcon->setContextMenu(m_ptrayIconMenu);
@@ -134,4 +139,31 @@ void TrayMenu::saveSettings(EventProvider::eventType event, int time)
 
 void TrayMenu::closeEvent(QCloseEvent *)
 {
+}
+
+void TrayMenu::setActionsEnabled(bool enabled)
+{
+   for(auto action: m_ptrayIconMenu->actions()){
+      if(action  == m_pexitAction){
+         action->setEnabled(true);
+      }else{
+         action->setEnabled(enabled);
+      }
+   }
+   if(enabled){
+      m_ptrayIconMenu->removeAction(m_ptweakRegisterAction);
+   }else {
+      m_ptrayIconMenu->addAction(m_ptweakRegisterAction);
+
+      QMessageBox::StandardButton reply;
+      reply = QMessageBox::question(this, "Info", "Register is not tweaked. Tweak it right now?\n\n"
+                                                  "This tweak will only add registry DWORD value:\n"
+                                                  "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\\Background\\OEMBackground = 1\n"
+                                                  "You can do it manually and rerun this program.",
+
+                                    QMessageBox::Yes|QMessageBox::No);
+      if (reply == QMessageBox::Yes) {
+         emit tweakRegister();
+      }
+   }
 }

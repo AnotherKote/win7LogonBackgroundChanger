@@ -10,6 +10,7 @@ class QMenu;
 class SettingsWindow;
 class QIcon;
 class QSettings;
+class QAction;
 
 class TrayMenu : public QLabel
 {
@@ -19,6 +20,8 @@ private:
    QMenu *m_ptrayIconMenu;
    SettingsWindow *m_psettingsWindow;
    QSettings *m_psettings;
+   QAction *m_pexitAction;
+   QAction *m_ptweakRegisterAction;
 
 public:
    TrayMenu(QWidget *parent = 0);
@@ -28,6 +31,7 @@ public slots:
    void openSettings();
    void showMessage(QString message);
    void saveSettings(EventProvider::eventType event, int time);
+   void setActionsEnabled(bool enabled);
 
 protected:
    void closeEvent(QCloseEvent *);
@@ -36,6 +40,7 @@ signals:
    void settingsChanged();
    void changeBackground();
    void changeEvent(EventProvider::eventType, int);
+   void tweakRegister();
 };
 
 #endif // TRAYMENU_H

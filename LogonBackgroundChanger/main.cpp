@@ -8,6 +8,7 @@
 #include "EventProvider.hpp"
 #include "TrayMenu.hpp"
 #include "BackgroundChanger.hpp"
+#include "RegisterTweaker.hpp"
 
 #include <QDebug>
 int main(int argc, char *argv[])
@@ -26,6 +27,8 @@ int main(int argc, char *argv[])
     QThread thread(&trayMenu);
     BackgroundChanger bgChanger; //QFileSystemWatcher
 
+    RegisterTweaker rt;
+
     QObject::connect(&trayMenu, SIGNAL(settingsChanged()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
     QObject::connect(&thread, SIGNAL(started()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
 
@@ -34,13 +37,15 @@ int main(int argc, char *argv[])
 
     QObject::connect(&bgChanger, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)), Qt::QueuedConnection);
     QObject::connect(&trayMenu, SIGNAL(changeEvent(EventProvider::eventType,int)), &eventProvider, SLOT(setEvent(EventProvider::eventType,int)));
+    QObject::connect(&rt, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)));
+    QObject::connect(&rt, SIGNAL(result(bool)), &trayMenu, SLOT(setActionsEnabled(bool)));
+    QObject::connect(&trayMenu, SIGNAL(tweakRegister()), &rt, SLOT(tweakRegister()));
 
     QObject::connect(&a, SIGNAL(aboutToQuit()), &thread, SLOT(terminate()));
 
     bgChanger.moveToThread(&thread);
     thread.start();
 
-//    bgChanger.updateImagesNames();
-
+    rt.checkRegister();
     return a.exec();
 }

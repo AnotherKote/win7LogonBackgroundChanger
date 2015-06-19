@@ -12,18 +12,20 @@ CONFIG   += c++11
 
 TEMPLATE = app
 
-#RC_FILE = my.rc
+RC_FILE = icon.rc
 
 SOURCES += main.cpp \
     private\TrayMenu.cpp \
     private\SettingsWindow.cpp \
     private\BackgroundChanger.cpp \
-    private\EventProvider.cpp
+    private\EventProvider.cpp \
+    private\RegisterTweaker.cpp
 
 HEADERS += \
     TrayMenu.hpp \
     SettingsWindow.hpp \
     BackgroundChanger.hpp \
-    EventProvider.hpp
+    EventProvider.hpp \
+    RegisterTweaker.hpp
 
 RESOURCES += qrc.qrc
