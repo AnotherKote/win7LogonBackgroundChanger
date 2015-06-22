@@ -36,7 +36,7 @@ TrayMenu::TrayMenu(QWidget *parent)
    QAction *onUnlocked = new QAction ("Every workstation unlock", this);
    QAction *custom = new QAction ("Custom...", this);
 
-   QAction *updateDirs = new QAction("Udpate directories", this);
+   QAction *updateDirs = new QAction("Update directories", this);
    QAction *settings = new QAction("&Settings...", this);
    m_ptweakRegisterAction = new QAction("&Tweak register", this);
    m_pexitAction = new QAction("E&xit", this);
