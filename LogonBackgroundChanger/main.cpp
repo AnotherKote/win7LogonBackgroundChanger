@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QStringList>
 #include <QThread>
+#include <QImage>
 
 //#include "ConfigFileParser.hpp"
 #include "EventProvider.hpp"
@@ -36,16 +37,20 @@ int main(int argc, char *argv[])
     QObject::connect(&eventProvider, SIGNAL(timeToChange()), &bgChanger, SLOT(changeBackground()), Qt::QueuedConnection);
 
     QObject::connect(&bgChanger, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)), Qt::QueuedConnection);
+    QObject::connect(&bgChanger, SIGNAL(imageChanged(QImage)), &trayMenu, SLOT(setCurrentPicture(QImage)));
     QObject::connect(&trayMenu, SIGNAL(changeEvent(EventProvider::eventType,int)), &eventProvider, SLOT(setEvent(EventProvider::eventType,int)));
     QObject::connect(&rt, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)));
     QObject::connect(&rt, SIGNAL(result(bool)), &trayMenu, SLOT(setActionsEnabled(bool)));
     QObject::connect(&trayMenu, SIGNAL(tweakRegister()), &rt, SLOT(tweakRegister()));
-
     QObject::connect(&a, SIGNAL(aboutToQuit()), &thread, SLOT(terminate()));
 
     bgChanger.moveToThread(&thread);
     thread.start();
 
     rt.checkRegister();
+    QImage defaultImage;
+    defaultImage.load(bgChanger.getWindowsDir());
+    trayMenu.setCurrentPicture(defaultImage);
+
     return a.exec();
 }

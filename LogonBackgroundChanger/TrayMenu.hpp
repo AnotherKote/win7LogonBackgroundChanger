@@ -2,6 +2,7 @@
 #define TRAYMENU_H
 
 #include <QLabel>
+#include <QImage>
 #include <EventProvider.hpp>
 //#include <QString>
 
@@ -11,6 +12,8 @@ class SettingsWindow;
 class QIcon;
 class QSettings;
 class QAction;
+class QWidgetAction;
+class MenuImage;
 
 class TrayMenu : public QLabel
 {
@@ -20,9 +23,11 @@ private:
    QMenu *m_ptrayIconMenu;
    SettingsWindow *m_psettingsWindow;
    QSettings *m_psettings;
+   QAction *m_pchangeBackground;
    QAction *m_pexitAction;
    QAction *m_ptweakRegisterAction;
-
+   QWidgetAction *m_pcurrentImage;
+   MenuImage *m_pimageLabel;
 public:
    TrayMenu(QWidget *parent = 0);
    ~TrayMenu();
@@ -32,6 +37,7 @@ public slots:
    void showMessage(QString message);
    void saveSettings(EventProvider::eventType event, int time);
    void setActionsEnabled(bool enabled);
+   void setCurrentPicture(QImage image);
 
 protected:
    void closeEvent(QCloseEvent *);

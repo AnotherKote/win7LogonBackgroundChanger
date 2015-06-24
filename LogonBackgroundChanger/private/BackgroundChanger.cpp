@@ -82,6 +82,7 @@ void BackgroundChanger::changeBackground()
       int comressionLevel = 100;
       QBuffer buf;
       QImage scaledImage = image.scaled(m_screenSize);
+      emit imageChanged(image);
       do{
          buf.close();
          buf.open(QIODevice::Truncate | QIODevice::ReadWrite);

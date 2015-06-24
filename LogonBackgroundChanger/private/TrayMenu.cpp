@@ -1,6 +1,7 @@
 #include "TrayMenu.hpp"
 #include "SettingsWindow.hpp"
 #include "EventProvider.hpp"
+#include "MenuImage.hpp"
 
 #include <QMenu>
 #include <QSystemTrayIcon>
@@ -9,6 +10,8 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QDebug>
+#include <QWidgetAction>
+#include <QImage>
 
 TrayMenu::TrayMenu(QWidget *parent)
 : QLabel(parent)
@@ -16,14 +19,19 @@ TrayMenu::TrayMenu(QWidget *parent)
 , m_ptrayIconMenu(nullptr)
 , m_psettingsWindow(nullptr)
 , m_psettings(nullptr)
+, m_pchangeBackground(nullptr)
 , m_pexitAction(nullptr)
 , m_ptweakRegisterAction(nullptr)
+, m_pcurrentImage(nullptr)
+, m_pimageLabel(nullptr)
 {
    setWindowTitle("logon background changer");
 
    m_psettingsWindow = new SettingsWindow(this);
 
-   QAction *changeBackground = new QAction("&Change logon background", this);
+   m_pcurrentImage = new QWidgetAction(this);
+   m_pimageLabel = new MenuImage(this);
+   m_pchangeBackground = new QAction("&Change logon background", this);
 
    QMenu *changeIntervalSubMenu = new QMenu ("&Interval", this);
    QActionGroup *timeIntervalsActionGroup = new QActionGroup(this);
@@ -42,6 +50,8 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_pexitAction = new QAction("E&xit", this);
 
    m_psettings = new QSettings(this);
+
+   m_pcurrentImage->setDefaultWidget(m_pimageLabel);
 
    never->setCheckable(true);
    oneMinute->setCheckable(true);
@@ -63,7 +73,8 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    changeIntervalSubMenu->addActions(timeIntervalsActionGroup->actions());
 
-   connect(changeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
+   connect(m_pimageLabel, SIGNAL(mouseReleased()), SIGNAL(changeBackground()));
+   connect(m_pchangeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
 
    connect(never, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_NONE, 0); });
    connect(oneMinute, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
@@ -82,7 +93,9 @@ TrayMenu::TrayMenu(QWidget *parent)
    connect(m_psettingsWindow, SIGNAL(settingsChanged()), SIGNAL(settingsChanged()));
 
    m_ptrayIconMenu = new QMenu(this);
-   m_ptrayIconMenu->addAction(changeBackground);
+   m_ptrayIconMenu->addAction(m_pcurrentImage);
+   m_ptrayIconMenu->addSeparator();
+   m_ptrayIconMenu->addAction(m_pchangeBackground);
    m_ptrayIconMenu->addMenu(changeIntervalSubMenu);
    m_ptrayIconMenu->addAction(updateDirs);
    m_ptrayIconMenu->addAction(settings);
@@ -143,14 +156,14 @@ void TrayMenu::closeEvent(QCloseEvent *)
 
 void TrayMenu::setActionsEnabled(bool enabled)
 {
-   for(auto action: m_ptrayIconMenu->actions()){
-      if(action  == m_pexitAction){
+   for (auto action: m_ptrayIconMenu->actions()){
+      if (action  == m_pexitAction){
          action->setEnabled(true);
       }else{
          action->setEnabled(enabled);
       }
    }
-   if(enabled){
+   if (enabled){
       m_ptrayIconMenu->removeAction(m_ptweakRegisterAction);
    }else {
       m_ptrayIconMenu->addAction(m_ptweakRegisterAction);
@@ -166,4 +179,11 @@ void TrayMenu::setActionsEnabled(bool enabled)
          emit tweakRegister();
       }
    }
+}
+
+void TrayMenu::setCurrentPicture(QImage image)
+{
+   m_ptrayIconMenu->removeAction(m_pcurrentImage);
+   m_pimageLabel->setPixmap(QPixmap::fromImage(image.scaledToWidth(400, Qt::SmoothTransformation)));
+   m_ptrayIconMenu->insertAction(m_pchangeBackground ,m_pcurrentImage);
 }

@@ -19,13 +19,15 @@ SOURCES += main.cpp \
     private\SettingsWindow.cpp \
     private\BackgroundChanger.cpp \
     private\EventProvider.cpp \
-    private\RegisterTweaker.cpp
+    private\RegisterTweaker.cpp \
+    private/MenuImage.cpp
 
 HEADERS += \
     TrayMenu.hpp \
     SettingsWindow.hpp \
     BackgroundChanger.hpp \
     EventProvider.hpp \
-    RegisterTweaker.hpp
+    RegisterTweaker.hpp \
+    MenuImage.hpp
 
 RESOURCES += qrc.qrc
