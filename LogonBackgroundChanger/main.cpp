@@ -49,8 +49,9 @@ int main(int argc, char *argv[])
 
     rt.checkRegister();
     QImage defaultImage;
-    defaultImage.load(bgChanger.getWindowsDir());
+    defaultImage.load(bgChanger.getWindowsDir() + bgChanger.m_defaultImagePath);
     trayMenu.setCurrentPicture(defaultImage);
+    bgChanger.imageChangedSlot("");
 
     return a.exec();
 }
