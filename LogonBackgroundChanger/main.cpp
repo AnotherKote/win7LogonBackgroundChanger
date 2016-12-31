@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&bgChanger, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)), Qt::QueuedConnection);
     QObject::connect(&trayMenu, SIGNAL(changeEvent(EventProvider::eventType,int)), &eventProvider, SLOT(setEvent(EventProvider::eventType,int)));
+    QObject::connect(&trayMenu, SIGNAL(randomChanged(bool)), &bgChanger, SLOT(setIsRandom(bool)));
     QObject::connect(&rt, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)));
     QObject::connect(&rt, SIGNAL(result(bool)), &trayMenu, SLOT(setActionsEnabled(bool)));
     QObject::connect(&trayMenu, SIGNAL(tweakRegister()), &rt, SLOT(tweakRegister()));
@@ -47,5 +48,7 @@ int main(int argc, char *argv[])
     thread.start();
 
     rt.checkRegister();
+    trayMenu.readSettings();
+
     return a.exec();
 }

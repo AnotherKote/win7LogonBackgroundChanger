@@ -34,7 +34,13 @@ TrayMenu::TrayMenu(QWidget *parent)
    QAction *oneHour = new QAction ("1 hour", this);
    QAction *onLocked = new QAction ("Every workstation lock", this);
    QAction *onUnlocked = new QAction ("Every workstation unlock", this);
+   QAction *onLogon = new QAction ("Every logon", this);
    QAction *custom = new QAction ("Custom...", this);
+
+   QMenu *random = new QMenu ("&Random", this);
+   QActionGroup *randomActionGroup = new QActionGroup(this);
+   QAction *randomYes = new QAction("&Yes", this);
+   QAction *randomNo  = new QAction("&No", this);
 
    QAction *updateDirs = new QAction("Update directories", this);
    QAction *settings = new QAction("&Settings...", this);
@@ -50,6 +56,7 @@ TrayMenu::TrayMenu(QWidget *parent)
    oneHour->setCheckable(true);
    onLocked->setCheckable(true);
    onUnlocked->setCheckable(true);
+   onLogon->setCheckable(true);
    custom->setCheckable(true);
 
    timeIntervalsActionGroup->addAction(never);
@@ -59,21 +66,34 @@ TrayMenu::TrayMenu(QWidget *parent)
    timeIntervalsActionGroup->addAction(oneHour);
    timeIntervalsActionGroup->addAction(onLocked);
    timeIntervalsActionGroup->addAction(onUnlocked);
+   timeIntervalsActionGroup->addAction(onLogon);
    timeIntervalsActionGroup->addAction(custom);
 
    changeIntervalSubMenu->addActions(timeIntervalsActionGroup->actions());
 
+   randomYes->setCheckable(true);
+   randomNo->setCheckable(true);
+
+   randomActionGroup->addAction(randomYes);
+   randomActionGroup->addAction(randomNo);
+
+   random->addActions(randomActionGroup->actions());
+
    connect(changeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
 
-   connect(never, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_NONE, 0); });
-   connect(oneMinute, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
-   connect(fiveMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
-   connect(thirtyMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
-   connect(oneHour, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
-   connect(onLocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_LOCK, 0); });
-   connect(onUnlocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
-   connect(custom, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 24*60*60*1000); });
+   connect(never, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_NONE, 0); });
+   connect(oneMinute, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
+   connect(fiveMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
+   connect(thirtyMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
+   connect(oneHour, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
+   connect(onLocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOCK, 0); });
+   connect(onUnlocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
+   connect(onLogon, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOGON, 0); });
+   connect(custom, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 24*60*60*1000); });
    connect(this, SIGNAL(changeEvent(EventProvider::eventType,int)), SLOT(saveSettings(EventProvider::eventType,int)));
+
+   connect(randomYes, &QAction::triggered, [this](){ emit randomChanged(true ); });
+   connect(randomNo,  &QAction::triggered, [this](){ emit randomChanged(false); });
 
    connect(updateDirs, SIGNAL(triggered(bool)), SIGNAL(settingsChanged()));
    connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
@@ -84,6 +104,7 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_ptrayIconMenu = new QMenu(this);
    m_ptrayIconMenu->addAction(changeBackground);
    m_ptrayIconMenu->addMenu(changeIntervalSubMenu);
+   m_ptrayIconMenu->addMenu(random);
    m_ptrayIconMenu->addAction(updateDirs);
    m_ptrayIconMenu->addAction(settings);
    m_ptrayIconMenu->addAction(m_pexitAction);
@@ -119,6 +140,11 @@ TrayMenu::TrayMenu(QWidget *parent)
 
 TrayMenu::~TrayMenu()
 {
+}
+
+void TrayMenu::readSettings()
+{
+
 }
 
 void TrayMenu::openSettings()

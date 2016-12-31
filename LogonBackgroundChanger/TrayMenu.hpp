@@ -27,6 +27,8 @@ public:
    TrayMenu(QWidget *parent = 0);
    ~TrayMenu();
 
+   void readSettings();
+
 public slots:
    void openSettings();
    void showMessage(QString message);
@@ -41,6 +43,7 @@ signals:
    void changeBackground();
    void changeEvent(EventProvider::eventType, int);
    void tweakRegister();
+   void randomChanged(bool isRandom);
 };
 
 #endif // TRAYMENU_H

@@ -17,7 +17,8 @@ public:
       E_NONE = 0,
       E_TIME,
       E_UNLOCK,
-      E_LOCK
+      E_LOCK,
+      E_LOGON
    };
 
 signals:
