@@ -1,4 +1,3 @@
-#include <QSettings>
 #include <windows.h>
 
 #include "RegisterTweaker.hpp"

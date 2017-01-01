@@ -4,8 +4,6 @@
 #include <QWidget>
 #include <windows.h> ///<@todo move to cpp
 
-class QSettings;
-
 class EventProvider : public QWidget
 {
    Q_OBJECT

@@ -21,9 +21,6 @@ BackgroundChanger::BackgroundChanger(QObject *parent)
     , m_psettings(nullptr)
     , m_isRandom(false)
 {
-    QTime midnight(0,0,0);
-
-
     m_psettings = new QSettings(this);
     m_screenSize.setWidth(QApplication::desktop()->screenGeometry().width());
     m_screenSize.setHeight(QApplication::desktop()->screenGeometry().height());
