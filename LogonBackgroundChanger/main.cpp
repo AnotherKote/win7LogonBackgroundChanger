@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
 
     RegisterTweaker rt;
 
-    QObject::connect(&trayMenu, SIGNAL(settingsChanged()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
-    QObject::connect(&thread, SIGNAL(started()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
+    QObject::connect(&trayMenu, SIGNAL(settingsChanged()), &bgChanger, SLOT(updateImageNames()), Qt::QueuedConnection);
+    QObject::connect(&thread, SIGNAL(started()), &bgChanger, SLOT(updateImageNames()), Qt::QueuedConnection);
 
     QObject::connect(&trayMenu, SIGNAL(changeBackground()), &bgChanger, SLOT(changeBackground()), Qt::QueuedConnection);
     QObject::connect(&eventProvider, SIGNAL(timeToChange()), &bgChanger, SLOT(changeBackground()), Qt::QueuedConnection);

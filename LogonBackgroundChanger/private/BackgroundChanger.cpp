@@ -20,13 +20,14 @@ BackgroundChanger::BackgroundChanger(QObject *parent)
     : QObject(parent)
     , m_psettings(nullptr)
     , m_isRandom(false)
+    , m_currentImageIndex(0)
 {
     m_psettings = new QSettings(this);
     m_screenSize.setWidth(QApplication::desktop()->screenGeometry().width());
     m_screenSize.setHeight(QApplication::desktop()->screenGeometry().height());
 }
 
-void BackgroundChanger::updateImagesNames()
+void BackgroundChanger::updateImageNames()
 {
     m_images.clear();
     QList<QString> dirs;
@@ -75,20 +76,19 @@ void BackgroundChanger::changeBackground()
 {
     qsrand(static_cast<uint>(QDateTime::currentMSecsSinceEpoch()));
     if(!m_images.isEmpty()){
-        QImage image;
-        static int index = 0;
         if(m_isRandom)
         {
-            index = qrand()%m_images.count();
+            m_currentImageIndex = qrand()%m_images.count();
         }
         else
         {
-            index = (index + 1 < m_images.count()) ? index + 1 : 0;
+            m_currentImageIndex = (m_currentImageIndex + 1 < m_images.count()) ? m_currentImageIndex + 1 : 0;
         }
-        qDebug() << QTime::currentTime().toString() << ":"  << image.load(m_images.at(index)) << " set image " << m_images.at(index) << " random " << index << " count " << m_images.count();
+        QImage image;
+        qDebug() << QTime::currentTime().toString() << ":"  << image.load(m_images.at(m_currentImageIndex)) << " set image " << m_images.at(m_currentImageIndex) << " random " << m_currentImageIndex << " count " << m_images.count();
         int comressionLevel = 100;
         QBuffer buf;
-        QImage scaledImage = image.scaled(m_screenSize);
+        QImage scaledImage = image.scaled(m_screenSize, Qt::KeepAspectRatio);
         buf.open(QIODevice::Truncate | QIODevice::ReadWrite);
         do{
            buf.close();
@@ -101,7 +101,7 @@ void BackgroundChanger::changeBackground()
         QFile file(getWindowsDir());
         file.open(QIODevice::Truncate | QIODevice::WriteOnly);
         file.write(buf.data()); ///<todo handle errors
-        emit message("New image:\n" + QString(m_images.at(index)).replace("//", "\\"));
+        emit message("New image:\n" + QString(m_images.at(m_currentImageIndex)).replace("//", "\\"));
     } else {
         m_message = "No images was found in directories or no path set. Please, add some paths with images in settings.";
         emit message(m_message);

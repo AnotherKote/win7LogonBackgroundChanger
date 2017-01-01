@@ -23,12 +23,21 @@ private:
    QAction *m_pexitAction;
    QAction *m_ptweakRegisterAction;
 
+   QAction *m_never;
+   QAction *m_oneMinute;
+   QAction *m_fiveMinutes;
+   QAction *m_thirtyMinutes;
+   QAction *m_oneHour;
+   QAction *m_onLocked;
+   QAction *m_onUnlocked;
+   QAction *m_onLogon;
+   QAction *m_custom;
+
 public:
    TrayMenu(QWidget *parent = 0);
    ~TrayMenu();
 
    void readSettings();
-
 public slots:
    void openSettings();
    void showMessage(QString message);

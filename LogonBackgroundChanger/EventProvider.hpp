@@ -16,7 +16,8 @@ public:
       E_TIME,
       E_UNLOCK,
       E_LOCK,
-      E_LOGON
+      E_LOGON,
+      E_CUSTOM
    };
 
 signals:

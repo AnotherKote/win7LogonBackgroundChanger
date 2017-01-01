@@ -17,7 +17,7 @@ public:
 signals:
     void message(QString message);
 public slots:
-    void updateImagesNames();
+    void updateImageNames();
     void changeBackground();
     void setIsRandom(bool isRandom);
 
@@ -28,6 +28,7 @@ private:
     QString getWindowsDir();
     QString m_message;
     bool m_isRandom;
+    int m_currentImageIndex;
 };
 
 #endif // BACKGROUNDCHANGER_H

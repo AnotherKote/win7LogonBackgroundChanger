@@ -58,7 +58,9 @@ void EventProvider::setEvent(EventProvider::eventType type, int time /*= 0*/)
     case E_LOGON:
         m_winStatusCode = WTS_SESSION_LOGON;
         break;
+    case E_CUSTOM: // fallthrough
     default:
+        m_winStatusCode = UNREACHABLE_STATUS_CODE;
         break;
     }
 
@@ -73,7 +75,7 @@ bool EventProvider::nativeEvent(const QByteArray &eventType, void *message, long
 {
     MSG *msg = reinterpret_cast<MSG*>(message);
     if( msg->message == WM_WTSSESSION_CHANGE ){
-        if (msg->wParam == m_winStatusCode){
+        if (msg->wParam == m_winStatusCode && m_winStatusCode != UNREACHABLE_STATUS_CODE ){
             emit timeToChange();
         }
     }

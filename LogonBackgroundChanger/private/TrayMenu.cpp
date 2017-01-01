@@ -18,6 +18,15 @@ TrayMenu::TrayMenu(QWidget *parent)
 , m_psettings(nullptr)
 , m_pexitAction(nullptr)
 , m_ptweakRegisterAction(nullptr)
+, m_never(nullptr)
+, m_oneMinute(nullptr)
+, m_fiveMinutes(nullptr)
+, m_thirtyMinutes(nullptr)
+, m_oneHour(nullptr)
+, m_onLocked(nullptr)
+, m_onUnlocked(nullptr)
+, m_onLogon(nullptr)
+, m_custom(nullptr)
 {
    setWindowTitle("logon background changer");
 
@@ -27,15 +36,15 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    QMenu *changeIntervalSubMenu = new QMenu ("&Interval", this);
    QActionGroup *timeIntervalsActionGroup = new QActionGroup(this);
-   QAction *never = new QAction("Never", this);
-   QAction *oneMinute = new QAction("1 min", this);
-   QAction *fiveMinutes = new QAction ("5 min", this);
-   QAction *thirtyMinutes = new QAction ("30 min", this);
-   QAction *oneHour = new QAction ("1 hour", this);
-   QAction *onLocked = new QAction ("Every workstation lock", this);
-   QAction *onUnlocked = new QAction ("Every workstation unlock", this);
-   QAction *onLogon = new QAction ("Every logon", this);
-   QAction *custom = new QAction ("Custom...", this);
+   m_never = new QAction("Never", this);
+   m_oneMinute = new QAction("1 min", this);
+   m_fiveMinutes = new QAction ("5 min", this);
+   m_thirtyMinutes = new QAction ("30 min", this);
+   m_oneHour = new QAction ("1 hour", this);
+   m_onLocked = new QAction ("Every workstation lock", this);
+   m_onUnlocked = new QAction ("Every workstation unlock", this);
+   m_onLogon = new QAction ("Every logon", this);
+   m_custom = new QAction ("Custom...", this);
 
    QMenu *random = new QMenu ("&Random", this);
    QActionGroup *randomActionGroup = new QActionGroup(this);
@@ -49,25 +58,25 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    m_psettings = new QSettings(this);
 
-   never->setCheckable(true);
-   oneMinute->setCheckable(true);
-   fiveMinutes->setCheckable(true);
-   thirtyMinutes->setCheckable(true);
-   oneHour->setCheckable(true);
-   onLocked->setCheckable(true);
-   onUnlocked->setCheckable(true);
-   onLogon->setCheckable(true);
-   custom->setCheckable(true);
+   m_never->setCheckable(true);
+   m_oneMinute->setCheckable(true);
+   m_fiveMinutes->setCheckable(true);
+   m_thirtyMinutes->setCheckable(true);
+   m_oneHour->setCheckable(true);
+   m_onLocked->setCheckable(true);
+   m_onUnlocked->setCheckable(true);
+   m_onLogon->setCheckable(true);
+   m_custom->setCheckable(true);
 
-   timeIntervalsActionGroup->addAction(never);
-   timeIntervalsActionGroup->addAction(oneMinute);
-   timeIntervalsActionGroup->addAction(fiveMinutes);
-   timeIntervalsActionGroup->addAction(thirtyMinutes);
-   timeIntervalsActionGroup->addAction(oneHour);
-   timeIntervalsActionGroup->addAction(onLocked);
-   timeIntervalsActionGroup->addAction(onUnlocked);
-   timeIntervalsActionGroup->addAction(onLogon);
-   timeIntervalsActionGroup->addAction(custom);
+   timeIntervalsActionGroup->addAction(m_never);
+   timeIntervalsActionGroup->addAction(m_oneMinute);
+   timeIntervalsActionGroup->addAction(m_fiveMinutes);
+   timeIntervalsActionGroup->addAction(m_thirtyMinutes);
+   timeIntervalsActionGroup->addAction(m_oneHour);
+   timeIntervalsActionGroup->addAction(m_onLocked);
+   timeIntervalsActionGroup->addAction(m_onUnlocked);
+   timeIntervalsActionGroup->addAction(m_onLogon);
+   timeIntervalsActionGroup->addAction(m_custom);
 
    changeIntervalSubMenu->addActions(timeIntervalsActionGroup->actions());
 
@@ -81,15 +90,15 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    connect(changeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
 
-   connect(never, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_NONE, 0); });
-   connect(oneMinute, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
-   connect(fiveMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
-   connect(thirtyMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
-   connect(oneHour, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
-   connect(onLocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOCK, 0); });
-   connect(onUnlocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
-   connect(onLogon, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOGON, 0); });
-   connect(custom, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 24*60*60*1000); });
+   connect(m_never, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_NONE, 0); });
+   connect(m_oneMinute, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
+   connect(m_fiveMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
+   connect(m_thirtyMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
+   connect(m_oneHour, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
+   connect(m_onLocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOCK, 0); });
+   connect(m_onUnlocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
+   connect(m_onLogon, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOGON, 0); });
+   connect(m_custom, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 24*60*60*1000); });
    connect(this, SIGNAL(changeEvent(EventProvider::eventType,int)), SLOT(saveSettings(EventProvider::eventType,int)));
 
    connect(randomYes, &QAction::triggered, [this](){ emit randomChanged(true ); });
@@ -114,28 +123,6 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_ptrayIcon->setToolTip("Logon background changer");
    m_ptrayIcon->setIcon(QIcon("://icon/icon.png"));
    m_ptrayIcon->show();
-
-   if(m_psettings->contains("/event/type")){
-       EventProvider::eventType event = static_cast<EventProvider::eventType>(m_psettings->value("/event/type").toInt());
-       int time = m_psettings->value("/event/time").toInt();
-       oneMinute->setChecked(event == EventProvider::E_TIME && time == 60*1000);
-       fiveMinutes->setChecked(event == EventProvider::E_TIME && time == 5*60*1000);
-       thirtyMinutes->setChecked(event == EventProvider::E_TIME && time == 30*60*1000);
-       oneHour->setChecked(event == EventProvider::E_TIME && time == 60*60*1000);
-       onLocked->setChecked(event == EventProvider::E_LOCK);
-       onUnlocked->setChecked(event == EventProvider::E_UNLOCK);
-       custom->setChecked(!oneMinute->isChecked()     &&
-                          !fiveMinutes->isChecked()   &&
-                          !thirtyMinutes->isChecked() &&
-                          !oneHour->isChecked()       &&
-                          !onLocked->isChecked()      &&
-                          !onUnlocked->isChecked()    );
-
-       emit changeEvent(event, time);
-   } else {
-       onLocked->setChecked(EventProvider::E_LOCK);
-       emit changeEvent(EventProvider::E_LOCK, 0);
-   }
 }
 
 TrayMenu::~TrayMenu()
@@ -144,7 +131,24 @@ TrayMenu::~TrayMenu()
 
 void TrayMenu::readSettings()
 {
+    if(m_psettings->contains("/event/type")){
+        EventProvider::eventType event = static_cast<EventProvider::eventType>(m_psettings->value("/event/type").toInt());
+        int time = m_psettings->value("/event/time").toInt();
+        m_never->setChecked(event == EventProvider::E_NONE);
+        m_oneMinute->setChecked(event == EventProvider::E_TIME && time == 60*1000);
+        m_fiveMinutes->setChecked(event == EventProvider::E_TIME && time == 5*60*1000);
+        m_thirtyMinutes->setChecked(event == EventProvider::E_TIME && time == 30*60*1000);
+        m_oneHour->setChecked(event == EventProvider::E_TIME && time == 60*60*1000);
+        m_onLocked->setChecked(event == EventProvider::E_LOCK);
+        m_onUnlocked->setChecked(event == EventProvider::E_UNLOCK);
+        m_onLogon->setChecked(event == EventProvider::E_LOGON);
+        m_custom->setChecked(event == EventProvider::E_CUSTOM);
 
+        emit changeEvent(event, time);
+    } else {
+        m_onLocked->setChecked(EventProvider::E_LOCK);
+        emit changeEvent(EventProvider::E_LOCK, 0);
+    }
 }
 
 void TrayMenu::openSettings()
