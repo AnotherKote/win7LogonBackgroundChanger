@@ -3,8 +3,6 @@
 
 #include <QObject>
 
-class QSettings;
-
 class RegisterTweaker: public QObject
 {
    Q_OBJECT

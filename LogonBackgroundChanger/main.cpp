@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
 
     RegisterTweaker rt;
 
-    QObject::connect(&trayMenu, SIGNAL(settingsChanged()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
-    QObject::connect(&thread, SIGNAL(started()), &bgChanger, SLOT(updateImagesNames()), Qt::QueuedConnection);
+    QObject::connect(&trayMenu, SIGNAL(settingsChanged()), &bgChanger, SLOT(updateImageNames()), Qt::QueuedConnection);
+    QObject::connect(&thread, SIGNAL(started()), &bgChanger, SLOT(updateImageNames()), Qt::QueuedConnection);
 
     QObject::connect(&trayMenu, SIGNAL(changeBackground()), &bgChanger, SLOT(changeBackground()), Qt::QueuedConnection);
     QObject::connect(&eventProvider, SIGNAL(timeToChange()), &bgChanger, SLOT(changeBackground()), Qt::QueuedConnection);
@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     QObject::connect(&bgChanger, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)), Qt::QueuedConnection);
     QObject::connect(&bgChanger, SIGNAL(imageChanged(QImage)), &trayMenu, SLOT(setCurrentPicture(QImage)));
     QObject::connect(&trayMenu, SIGNAL(changeEvent(EventProvider::eventType,int)), &eventProvider, SLOT(setEvent(EventProvider::eventType,int)));
+    QObject::connect(&trayMenu, SIGNAL(randomChanged(bool)), &bgChanger, SLOT(setIsRandom(bool)));
     QObject::connect(&rt, SIGNAL(message(QString)), &trayMenu, SLOT(showMessage(QString)));
     QObject::connect(&rt, SIGNAL(result(bool)), &trayMenu, SLOT(setActionsEnabled(bool)));
     QObject::connect(&trayMenu, SIGNAL(tweakRegister()), &rt, SLOT(tweakRegister()));
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
     QImage defaultImage;
     defaultImage.load(bgChanger.getWindowsDir());
     trayMenu.setCurrentPicture(defaultImage);
+    trayMenu.readSettings();
 
     return a.exec();
 }

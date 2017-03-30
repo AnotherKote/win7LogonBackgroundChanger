@@ -20,10 +20,20 @@ TrayMenu::TrayMenu(QWidget *parent)
 , m_psettingsWindow(nullptr)
 , m_psettings(nullptr)
 , m_pchangeBackground(nullptr)
+, m_pRandom(nullptr)
 , m_pexitAction(nullptr)
 , m_ptweakRegisterAction(nullptr)
 , m_pcurrentImage(nullptr)
 , m_pimageLabel(nullptr)
+, m_never(nullptr)
+, m_oneMinute(nullptr)
+, m_fiveMinutes(nullptr)
+, m_thirtyMinutes(nullptr)
+, m_oneHour(nullptr)
+, m_onLocked(nullptr)
+, m_onUnlocked(nullptr)
+, m_onLogon(nullptr)
+, m_custom(nullptr)
 {
    setWindowTitle("logon background changer");
 
@@ -32,17 +42,19 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_pcurrentImage = new QWidgetAction(this);
    m_pimageLabel = new MenuImage(this);
    m_pchangeBackground = new QAction("&Change logon background", this);
+   m_pRandom = new QAction("&Random", this);
 
    QMenu *changeIntervalSubMenu = new QMenu ("&Interval", this);
    QActionGroup *timeIntervalsActionGroup = new QActionGroup(this);
-   QAction *never = new QAction("Never", this);
-   QAction *oneMinute = new QAction("1 min", this);
-   QAction *fiveMinutes = new QAction ("5 min", this);
-   QAction *thirtyMinutes = new QAction ("30 min", this);
-   QAction *oneHour = new QAction ("1 hour", this);
-   QAction *onLocked = new QAction ("Every workstation lock", this);
-   QAction *onUnlocked = new QAction ("Every workstation unlock", this);
-   QAction *custom = new QAction ("Custom...", this);
+   m_never = new QAction("Never", this);
+   m_oneMinute = new QAction("1 min", this);
+   m_fiveMinutes = new QAction ("5 min", this);
+   m_thirtyMinutes = new QAction ("30 min", this);
+   m_oneHour = new QAction ("1 hour", this);
+   m_onLocked = new QAction ("Every workstation lock", this);
+   m_onUnlocked = new QAction ("Every workstation unlock", this);
+   m_onLogon = new QAction ("Every logon", this);
+   m_custom = new QAction ("Custom...", this);
 
    QAction *updateDirs = new QAction("Update directories", this);
    QAction *settings = new QAction("&Settings...", this);
@@ -51,39 +63,47 @@ TrayMenu::TrayMenu(QWidget *parent)
 
    m_psettings = new QSettings(this);
 
+   m_pRandom->setCheckable(true);
+
    m_pcurrentImage->setDefaultWidget(m_pimageLabel);
 
-   never->setCheckable(true);
-   oneMinute->setCheckable(true);
-   fiveMinutes->setCheckable(true);
-   thirtyMinutes->setCheckable(true);
-   oneHour->setCheckable(true);
-   onLocked->setCheckable(true);
-   onUnlocked->setCheckable(true);
-   custom->setCheckable(true);
+   m_never->setCheckable(true);
+   m_oneMinute->setCheckable(true);
+   m_fiveMinutes->setCheckable(true);
+   m_thirtyMinutes->setCheckable(true);
+   m_oneHour->setCheckable(true);
+   m_onLocked->setCheckable(true);
+   m_onUnlocked->setCheckable(true);
+   m_onLogon->setCheckable(true);
+   m_custom->setCheckable(true);
 
-   timeIntervalsActionGroup->addAction(never);
-   timeIntervalsActionGroup->addAction(oneMinute);
-   timeIntervalsActionGroup->addAction(fiveMinutes);
-   timeIntervalsActionGroup->addAction(thirtyMinutes);
-   timeIntervalsActionGroup->addAction(oneHour);
-   timeIntervalsActionGroup->addAction(onLocked);
-   timeIntervalsActionGroup->addAction(onUnlocked);
-   timeIntervalsActionGroup->addAction(custom);
+   timeIntervalsActionGroup->addAction(m_never);
+   timeIntervalsActionGroup->addAction(m_oneMinute);
+   timeIntervalsActionGroup->addAction(m_fiveMinutes);
+   timeIntervalsActionGroup->addAction(m_thirtyMinutes);
+   timeIntervalsActionGroup->addAction(m_oneHour);
+   timeIntervalsActionGroup->addAction(m_onLocked);
+   timeIntervalsActionGroup->addAction(m_onUnlocked);
+   timeIntervalsActionGroup->addAction(m_onLogon);
+   timeIntervalsActionGroup->addAction(m_custom);
 
    changeIntervalSubMenu->addActions(timeIntervalsActionGroup->actions());
 
    connect(m_pimageLabel, SIGNAL(mouseReleased()), SIGNAL(changeBackground()));
    connect(m_pchangeBackground, SIGNAL(triggered(bool)), SIGNAL(changeBackground()));
 
-   connect(never, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_NONE, 0); });
-   connect(oneMinute, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
-   connect(fiveMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
-   connect(thirtyMinutes, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
-   connect(oneHour, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
-   connect(onLocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_LOCK, 0); });
-   connect(onUnlocked, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
-   connect(custom, &QAction::triggered, [=](){ emit changeEvent(EventProvider::E_TIME, 24*60*60*1000); });
+   connect(m_pRandom, &QAction::toggled, [this](bool s) {emit randomChanged(s);});
+   connect(this, SIGNAL(randomChanged(bool)), SLOT(saveRandom(bool)));
+
+   connect(m_never, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_NONE, 0); });
+   connect(m_oneMinute, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*1000); });
+   connect(m_fiveMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 5*60*1000); });
+   connect(m_thirtyMinutes, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 30*60*1000); });
+   connect(m_oneHour, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 60*60*1000); });
+   connect(m_onLocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOCK, 0); });
+   connect(m_onUnlocked, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_UNLOCK, 0); });
+   connect(m_onLogon, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_LOGON, 0); });
+   connect(m_custom, &QAction::triggered, [this](){ emit changeEvent(EventProvider::E_TIME, 24*60*60*1000); });
    connect(this, SIGNAL(changeEvent(EventProvider::eventType,int)), SLOT(saveSettings(EventProvider::eventType,int)));
 
    connect(updateDirs, SIGNAL(triggered(bool)), SIGNAL(settingsChanged()));
@@ -97,6 +117,7 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_ptrayIconMenu->addSeparator();
    m_ptrayIconMenu->addAction(m_pchangeBackground);
    m_ptrayIconMenu->addMenu(changeIntervalSubMenu);
+   m_ptrayIconMenu->addAction(m_pRandom);
    m_ptrayIconMenu->addAction(updateDirs);
    m_ptrayIconMenu->addAction(settings);
    m_ptrayIconMenu->addAction(m_pexitAction);
@@ -106,32 +127,40 @@ TrayMenu::TrayMenu(QWidget *parent)
    m_ptrayIcon->setToolTip("Logon background changer");
    m_ptrayIcon->setIcon(QIcon("://icon/icon.png"));
    m_ptrayIcon->show();
-
-   if(m_psettings->contains("/event/type")){
-       EventProvider::eventType event = static_cast<EventProvider::eventType>(m_psettings->value("/event/type").toInt());
-       int time = m_psettings->value("/event/time").toInt();
-       oneMinute->setChecked(event == EventProvider::E_TIME && time == 60*1000);
-       fiveMinutes->setChecked(event == EventProvider::E_TIME && time == 5*60*1000);
-       thirtyMinutes->setChecked(event == EventProvider::E_TIME && time == 30*60*1000);
-       oneHour->setChecked(event == EventProvider::E_TIME && time == 60*60*1000);
-       onLocked->setChecked(event == EventProvider::E_LOCK);
-       onUnlocked->setChecked(event == EventProvider::E_UNLOCK);
-       custom->setChecked(!oneMinute->isChecked()     &&
-                          !fiveMinutes->isChecked()   &&
-                          !thirtyMinutes->isChecked() &&
-                          !oneHour->isChecked()       &&
-                          !onLocked->isChecked()      &&
-                          !onUnlocked->isChecked()    );
-
-       emit changeEvent(event, time);
-   } else {
-       onLocked->setChecked(EventProvider::E_LOCK);
-       emit changeEvent(EventProvider::E_LOCK, 0);
-   }
 }
 
 TrayMenu::~TrayMenu()
 {
+}
+
+void TrayMenu::readSettings()
+{
+    if(m_psettings->contains("/event/type")){
+        EventProvider::eventType event = static_cast<EventProvider::eventType>(m_psettings->value("/event/type").toInt());
+        int time = m_psettings->value("/event/time").toInt();
+
+        m_never->setChecked(event == EventProvider::E_NONE);
+        m_oneMinute->setChecked(event == EventProvider::E_TIME && time == 60*1000);
+        m_fiveMinutes->setChecked(event == EventProvider::E_TIME && time == 5*60*1000);
+        m_thirtyMinutes->setChecked(event == EventProvider::E_TIME && time == 30*60*1000);
+        m_oneHour->setChecked(event == EventProvider::E_TIME && time == 60*60*1000);
+        m_onLocked->setChecked(event == EventProvider::E_LOCK);
+        m_onUnlocked->setChecked(event == EventProvider::E_UNLOCK);
+        m_onLogon->setChecked(event == EventProvider::E_LOGON);
+        m_custom->setChecked(event == EventProvider::E_CUSTOM);
+
+        bool random = m_psettings->value("/event/random").toBool();
+        m_pRandom->setChecked(random);
+
+        emit changeEvent(event, time);
+        emit randomChanged(random);
+    } else {
+        m_onLocked->setChecked(EventProvider::E_LOCK);
+        m_pRandom->setChecked(true);
+
+        emit changeEvent(EventProvider::E_LOCK, 0);
+        emit randomChanged(true);
+    }
 }
 
 void TrayMenu::openSettings()
@@ -148,6 +177,11 @@ void TrayMenu::saveSettings(EventProvider::eventType event, int time)
 {
     m_psettings->setValue("/event/type", event);
     m_psettings->setValue("/event/time", time);
+}
+
+void TrayMenu::saveRandom(bool isRandom)
+{
+    m_psettings->setValue("/event/random", isRandom);
 }
 
 void TrayMenu::closeEvent(QCloseEvent *)
@@ -184,6 +218,6 @@ void TrayMenu::setActionsEnabled(bool enabled)
 void TrayMenu::setCurrentPicture(QImage image)
 {
    m_ptrayIconMenu->removeAction(m_pcurrentImage);
-   m_pimageLabel->setPixmap(QPixmap::fromImage(image.scaledToWidth(400, Qt::SmoothTransformation)));
+   m_pimageLabel->setPixmap(QPixmap::fromImage(image.scaledToWidth(800, Qt::SmoothTransformation)));
    m_ptrayIconMenu->insertAction(m_pchangeBackground ,m_pcurrentImage);
 }

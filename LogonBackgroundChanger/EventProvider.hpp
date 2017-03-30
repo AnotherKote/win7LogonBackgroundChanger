@@ -4,8 +4,6 @@
 #include <QWidget>
 #include <windows.h> ///<@todo move to cpp
 
-class QSettings;
-
 class EventProvider : public QWidget
 {
    Q_OBJECT
@@ -17,7 +15,9 @@ public:
       E_NONE = 0,
       E_TIME,
       E_UNLOCK,
-      E_LOCK
+      E_LOCK,
+      E_LOGON,
+      E_CUSTOM
    };
 
 signals:

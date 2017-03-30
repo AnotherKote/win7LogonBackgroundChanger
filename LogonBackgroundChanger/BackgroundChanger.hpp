@@ -11,24 +11,27 @@ class QList<class T>;
 
 class BackgroundChanger : public QObject
 {
-   Q_OBJECT
+    Q_OBJECT
 public:
-   explicit BackgroundChanger(QObject *parent = 0);
+    explicit BackgroundChanger(QObject *parent = 0);
 
-   QString getWindowsDir();
+    QString getWindowsDir();
 signals:
    void message(QString message);
    void imageChanged(QImage image);
 
 public slots:
-   void updateImagesNames();
-   void changeBackground();
+    void updateImageNames();
+    void changeBackground();
+    void setIsRandom(bool isRandom);
 
 private:
-   QList<QString> m_images;
-   QSettings *m_psettings;
-   QSize m_screenSize;
-   QString m_message;
+    QList<QString> m_images;
+    QSettings *m_psettings;
+    QSize m_screenSize;
+    QString m_message;
+    bool m_isRandom;
+    int m_currentImageIndex;
 };
 
 #endif // BACKGROUNDCHANGER_H
